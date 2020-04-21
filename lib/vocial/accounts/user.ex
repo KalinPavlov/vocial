@@ -12,6 +12,7 @@ defmodule Vocial.Accounts.User do
     field :password_confirmation, :string, virtual: true
 
     has_many :polls, Vocial.Votes.Poll
+    has_many :images, Vocial.Votes.Image
 
     timestamps()
   end

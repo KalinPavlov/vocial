@@ -6,6 +6,10 @@ defmodule Vocial.Votes.Poll do
     field :title, :string
 
     has_many :options, Vocial.Votes.Option
+    has_many :vote_records, Vocial.Votes.VoteRecord
+    has_many :messages, Vocial.Votes.Message
+    has_one :image, Vocial.Votes.Image
+
     belongs_to :user, Vocial.Accounts.User
 
     timestamps()
