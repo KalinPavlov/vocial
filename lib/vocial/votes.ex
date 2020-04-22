@@ -18,6 +18,26 @@ defmodule Vocial.Votes do
     )
   end
 
+  def list_most_recent_polls(page \\ 0, per_page \\ 25) do
+    Repo.all(
+      from p in Poll,
+        limit: ^per_page,
+        offset: ^(page * per_page),
+        order_by: [desc: p.inserted_at]
+    )
+    |> Repo.preload([:options, :image, :vote_records, :messages])
+  end
+
+  def list_most_recent_polls_with_extra(page \\ 0, per_page \\ 25) do
+    Repo.all(
+      from p in Poll,
+        limit: ^(per_page + 1),
+        offset: ^(page * per_page),
+        order_by: [desc: p.inserted_at]
+    )
+    |> Repo.preload([:options, :image, :vote_records, :messages])
+  end
+
   def list_poll_messages(poll_id) do
     Repo.all(
       from m in Message,

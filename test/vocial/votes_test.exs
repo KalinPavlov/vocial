@@ -66,6 +66,21 @@ defmodule Vocial.VotesTest do
       poll = poll_fixture(%{user_id: user.id})
       assert Votes.get_poll(poll.id) == poll
     end
+
+    test "list_most_recent_polls/2 returns polls ordered by the most recent first", %{user: user} do
+      poll = poll_fixture(%{user_id: user.id})
+      poll2 = poll_fixture(%{user_id: user.id})
+      poll3 = poll_fixture(%{user_id: user.id})
+      assert Votes.list_most_recent_polls() == [poll3, poll2, poll]
+    end
+
+    test "list_most_recent_polls/2 returns polls ordered and paged correctly", %{user: user} do
+      _poll = poll_fixture(%{user_id: user.id})
+      _poll2 = poll_fixture(%{user_id: user.id})
+      poll3 = poll_fixture(%{user_id: user.id})
+      _poll4 = poll_fixture(%{user_id: user.id})
+      assert Votes.list_most_recent_polls(1, 1) == [poll3]
+    end
   end
 
   describe "options" do

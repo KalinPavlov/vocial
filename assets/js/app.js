@@ -1,6 +1,8 @@
 // Import the default Phoenix HTML libraries
 import "phoenix_html";
 
+import css from "../css/app.css"
+
 // Import the User Socket code to enable websockets
 import socket from "./socket";
 
@@ -10,4 +12,4 @@ LivePolls.connect(socket);
 
 // // Import the Chat Socket code to enable chat
 import LiveChat from "./chat";
-LiveChat.connect(socket);
+LiveChat.loadChat(socket);

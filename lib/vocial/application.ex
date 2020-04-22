@@ -11,9 +11,11 @@ defmodule Vocial.Application do
       # Start the Ecto repository
       Vocial.Repo,
       # Start the endpoint when the application starts
-      VocialWeb.Endpoint
+      VocialWeb.Endpoint,
       # Starts a worker by calling: Vocial.Worker.start_link(arg)
       # {Vocial.Worker, arg},
+      VocialWeb.Presence,
+      Vocial.ChatCache
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
