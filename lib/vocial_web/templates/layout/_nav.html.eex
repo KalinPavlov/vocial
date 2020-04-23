@@ -6,7 +6,11 @@
       </div>
       <ul class="nav navbar-nav navbar-right">
         <li><a href="/polls">Polls</a></li>
-        <li><a href="/sessions/new">Login</a></li>
+        <%= if user = Plug.Conn.get_session(@conn, :user) do %>
+          <li><%= link "Welcome #{user.username}", to: Routes.user_path(@conn, :show, user.id) %></li>
+        <% else %>
+          <li><a href="/sessions/new">Login</a></li>
+        <% end %>
       </ul>
     </div>
   </nav>

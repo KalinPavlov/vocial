@@ -107,4 +107,25 @@ defmodule Vocial.Accounts do
   def change_user(%User{} = user) do
     User.changeset(user, %{})
   end
+
+  def get_user_by_oauth(oauth_provider, oauth_id) do
+    Repo.get_by(User, oauth_provider: oauth_provider, oauth_id: oauth_id)
+  end
+
+  def generate_api_key(%User{} = user) do
+    user
+    |> User.changeset(%{api_key: random_string(64)})
+    |> Repo.update()
+  end
+
+  def random_string(length) do
+    :crypto.strong_rand_bytes(length) |> Base.url_encode64() |> binary_part(0, length)
+  end
+
+  def verify_api_key(username, api_key) do
+    case get_user_by(username: username, api_key: api_key) do
+      nil -> false
+      _user -> true
+    end
+  end
 end

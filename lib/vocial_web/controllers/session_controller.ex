@@ -3,11 +3,13 @@ defmodule VocialWeb.SessionController do
 
   alias Vocial.Accounts
 
+  plug Ueberauth
+
   def new(conn, _params) do
     render(conn, "new.html")
   end
 
-  def create(conn, %{"session" => %{"username" => username, "password" => password}}) do
+  def create(conn, %{"username" => username, "password" => password}) do
     with user <- Accounts.get_user_by(username: username),
          {:ok, login_user} <- login(user, password) do
       conn
@@ -45,5 +47,54 @@ defmodule VocialWeb.SessionController do
         Bcrypt.no_user_verify()
         {:error, :not_found}
     end
+  end
+
+  def callback(%{assigns: %{ueberauth_failure: _fails}} = conn, _params) do
+    conn
+    |> put_flash(:error, "Failed to authenticate.")
+    |> redirect(to: "/")
+  end
+
+  def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do
+    case find_or_create_user(auth) do
+      {:ok, user} ->
+        conn
+        |> put_flash(:info, "Logged in successfully!")
+        |> put_session(:user, %{id: user.id, username: user.username, email: user.email})
+        |> redirect(to: "/")
+
+      {:error, reason} ->
+        conn
+        |> put_flash(:error, reason)
+        |> redirect(to: "/")
+    end
+  end
+
+  defp find_or_create_user(auth) do
+    user = build_user_from_auth(auth)
+
+    case Accounts.get_user_by_oauth(user.oauth_provider, user.oauth_id) do
+      nil ->
+        case Accounts.get_user_by(username: user.username) do
+          nil -> Accounts.create_user(user)
+          _ -> Accounts.create_user(%{user | username: "#{user.username}#{user.oauth_id}"})
+        end
+
+      user ->
+        {:ok, user}
+    end
+  end
+
+  defp build_user_from_auth(%{provider: :google} = auth) do
+    password = Accounts.random_string(64)
+
+    %{
+      username: auth.info.email,
+      email: auth.info.email,
+      oauth_id: auth.uid,
+      oauth_provider: "google",
+      password: password,
+      password_confirmation: password
+    }
   end
 end
